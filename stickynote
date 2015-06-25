@@ -1,0 +1,74 @@
+#!/bin/bash
+filepath="/home/$USER/Documents/stickynote.txt" # path of sticky note text file
+func=$1 # this should only be add, search, remove, or clear
+tag=$2
+
+# Check for existence of stickynote.txt
+# Create it if it does not exist
+if ! [ -f $filepath ]
+	then exec > $filepath
+	created=0
+	else created=1
+fi
+
+############################
+# add    - adds note under given tags, creates tag(s) if not present
+# search - displays every note under given tags
+# remove - removes given note number under the given tag
+# clear  - removes every note under given tags, also removes tags
+############################
+
+# Adds a note to the given tag, creates tag if not present
+# COMMAND LINE FORM: stickynote add tag "note"
+if [ "$func" = add ]
+	then note=$3
+
+	# Determine if tag already exists
+	grep -F -x -q \#$tag $filepath
+	tag_exists=$?
+
+	# Add tag if tag doesn't exist, add a new line before each tag
+	# after the first
+	if [ $tag_exists -ne 0 ] # && [ $created -eq 0 ]
+		then echo \#$tag >> $filepath
+		note=$note'\n'
+	fi
+	#elif [ $tag_exists -ne 0 ] && [ $created -eq 1 ]
+	#	then echo $'\n'\#$tag >> $filepath
+	#fi
+
+	# Find the tag in the document and add note on new line after it
+	exec sed -i -e "/\#$tag$/a \ $note" $filepath
+
+# Displays every note under the given tag
+# COMMAND LINE FORM: stickynote search tag
+elif [ "$func" = search ]
+	# TODO: If last tag is displayed, there is no new line at the end
+	then sed -n -e "/\#$tag$/,/^$/p" $filepath #| head -n -1
+
+# Removes the given note (notenum) under the given tag
+# COMMAND LINE FORM: stickynote remove tag notenum
+elif [ "$func" = remove ]
+	then notenum=$3
+	tagline=$(grep -x -n \#$tag $filepath | cut -f1 -d:)
+	sed -e "$((tagline+notenum))d" $filepath
+
+# Removes a tag and all notes in it
+# COMMAND LINE FORM: stickynote clear tag
+elif [ "$func" = clear ]
+	then sed -i "/\#$tag$/,/^$/d" $filepath
+
+# Displays all tags and notes
+# COMMAND LINE FORM: stickynote displayall
+elif [ "$func" = displayall ]
+	then exec cat $filepath
+
+# Displays all tags in file
+# COMMAND LINE FORM: stickynote showtags
+elif [ "$func" = showtags ]
+	then grep \# $filepath #sed -e "/\#$tag$/p" $filepath
+	else echo ERROR: First parameter must be: add, search, remove, clear, showtags, or displayall
+	exit -1
+fi
+
+exit 0
