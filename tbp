@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Randomly generates tree, boat, or plane. Good luck.
+
+if [ $# -ne 0 ]
+	then echo Just type tbp. Seriously. Don\'t give it any parameters.
+	exit 0
+fi
+
+randnum=$(($RANDOM % 3))
+
+if [[ $randnum -eq 0 ]]
+	then echo tree
+elif [[ $randnum -eq 1 ]]
+	then echo boat
+	else echo plane
+fi

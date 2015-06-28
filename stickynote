@@ -11,12 +11,16 @@ if ! [ -f $filepath ]
 	else created=1
 fi
 
-############################
-# add    - adds note under given tags, creates tag(s) if not present
-# search - displays every note under given tags
-# remove - removes given note number under the given tag
-# clear  - removes every note under given tags, also removes tags
-############################
+#############################
+#### STICKYNOTE COMMANDS ####
+# add        - adds note under given tags, creates tag(s) if not present
+# search     - displays every note under given tags
+# remove     - removes given note number under the given tag
+# clear      - removes every note under given tags, also removes tags
+# showtags   - displays all tags currently in the text file
+# displayall - displays entire text file
+# help       - shows correct usage for each of the above commands
+#############################
 
 # Adds a note to the given tag, creates tag if not present
 # COMMAND LINE FORM: stickynote add tag "note"
@@ -51,7 +55,7 @@ elif [ "$func" = search ]
 elif [ "$func" = remove ]
 	then notenum=$3
 	tagline=$(grep -x -n \#$tag $filepath | cut -f1 -d:)
-	sed -e "$((tagline+notenum))d" $filepath
+	sed -i "$((tagline+notenum))d" $filepath
 
 # Removes a tag and all notes in it
 # COMMAND LINE FORM: stickynote clear tag
@@ -67,8 +71,21 @@ elif [ "$func" = displayall ]
 # COMMAND LINE FORM: stickynote showtags
 elif [ "$func" = showtags ]
 	then grep \# $filepath #sed -e "/\#$tag$/p" $filepath
-	else echo ERROR: First parameter must be: add, search, remove, clear, showtags, or displayall
-	exit -1
+
+# Displays help messages for correct usage of stickynote
+# COMMAND LINE FORM: stickynote help
+elif [ "$func" = help ] || [ "$func" = "" ] 
+	then if [ "$func" = "" ] 
+		then echo "ERROR: First parameter must be: add, search, remove, clear, showtags, displayall, or help"
+	     fi
+	echo add: stickynote add tag note
+	echo search: stickynote search tag
+	echo remove: stickynote remove tag note_number
+	echo clear: stickynote clear tag
+	echo showtags: stickynote showtags
+	echo displayall: stickynote displayall
+	echo help: stickynote help
+	echo 
 fi
 
 exit 0
